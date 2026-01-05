@@ -46,7 +46,9 @@ export function Dashboard() {
 
   const moduleDefinitions = useMemo(() => getModuleDefinitions(), []);
   const modulesRef = useRef(modules);
-  modulesRef.current = modules;
+  useEffect(() => {
+    modulesRef.current = modules;
+  }, [modules]);
   const moduleKey = useMemo(() => modules.map((module) => module.id).join("|"), [modules]);
 
   useLayoutEffect(() => {
@@ -73,12 +75,6 @@ export function Dashboard() {
 
     if (changed) setModules(next);
   }, [autoLayout, metrics.cols, metrics.rows, moduleKey, setModules]);
-
-  useEffect(() => {
-    if (!editMode) {
-      setPreviewLayout(null);
-    }
-  }, [editMode]);
 
   const handleAddModule = (definition: ModuleDefinition) => {
     const bounds = { cols: metrics.cols, rows: metrics.rows };
@@ -157,7 +153,10 @@ export function Dashboard() {
               <button
                 type="button"
                 className="rounded-full border border-white/50 bg-white/20 px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-white transition hover:bg-white/30"
-                onClick={toggleEditMode}
+                onClick={() => {
+                  if (editMode) setPreviewLayout(null);
+                  toggleEditMode();
+                }}
               >
                 {editMode ? "Done" : "Edit"}
               </button>
@@ -192,6 +191,7 @@ export function Dashboard() {
             metrics={metrics}
             modules={modules}
             editMode={editMode}
+            autoLayout={autoLayout}
             activeDragId={activeDragId}
             previewLayout={previewLayout}
             onUpdateLayout={handleUpdateLayout}
