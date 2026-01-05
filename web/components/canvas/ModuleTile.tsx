@@ -230,21 +230,31 @@ export function ModuleTile({
             {(["nw", "ne", "sw", "se"] as ResizeHandle[]).map((handle) => {
               const position =
                 handle === "nw"
-                  ? "left-1 top-1"
+                  ? "-left-4 -top-4"
                   : handle === "ne"
-                    ? "right-1 top-1"
+                    ? "-right-4 -top-4"
                     : handle === "sw"
-                      ? "left-1 bottom-1"
-                      : "right-1 bottom-1";
+                      ? "-left-4 -bottom-4"
+                      : "-right-4 -bottom-4";
               return (
-                <span
+                <div
                   key={handle}
                   data-resize-handle={handle}
                   className={cn(
-                    "absolute h-3.5 w-3.5 rounded-full border border-white/70 bg-[color:var(--accent-2)] shadow-[0_0_10px_rgba(59,166,166,0.6)]",
+                    "group/handle pointer-events-auto absolute h-12 w-12",
                     position,
                   )}
-                />
+                >
+                  <span
+                    data-resize-handle={handle}
+                    className={cn(
+                      "absolute inset-2 rounded-full border border-white/70 bg-[color:var(--accent-2)] opacity-0 shadow-[0_0_10px_rgba(59,166,166,0.0)]",
+                      "transition-all duration-150 ease-out",
+                      "group-hover/handle:opacity-100 group-hover/handle:shadow-[0_0_12px_rgba(59,166,166,0.7)] group-hover/handle:scale-110",
+                      "group-hover/handle:animate-[pulse_0.4s_ease-in-out_forwards]",
+                    )}
+                  />
+                </div>
               );
             })}
             {invalid && (
