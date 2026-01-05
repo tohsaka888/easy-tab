@@ -181,7 +181,10 @@ export function Dashboard() {
               <button
                 type="button"
                 className="rounded-full border border-white/50 bg-white/20 px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-white transition hover:bg-white/30"
-                onClick={toggleEditMode}
+                onClick={() => {
+                  if (editMode) setPreviewLayout(null);
+                  toggleEditMode();
+                }}
               >
                 {editMode ? "Done" : "Edit"}
               </button>
@@ -218,6 +221,7 @@ export function Dashboard() {
             metrics={metrics}
             modules={modules}
             editMode={editMode}
+            autoLayout={autoLayout}
             activeDragId={activeDragId}
             previewLayout={effectivePreviewLayout}
             autoCanvasHeight={autoCanvasHeight}
