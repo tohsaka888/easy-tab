@@ -14,6 +14,7 @@ type ModuleTileProps = {
   definition: ModuleDefinition;
   index: number;
   metrics: GridMetrics;
+  autoLayout: boolean;
   editMode: boolean;
   active: boolean;
   autoCanvasHeight: boolean;
@@ -39,6 +40,7 @@ export function ModuleTile({
   definition,
   index,
   metrics,
+  autoLayout,
   editMode,
   active,
   autoCanvasHeight,
@@ -50,26 +52,36 @@ export function ModuleTile({
 }: ModuleTileProps) {
   const [invalid, setInvalid] = useState(false);
   const dragState = useRef<DragState | null>(null);
+  const pendingLayout = useRef<Layout | null>(null);
 
-  const endDrag = useCallback(() => {
-    const state = dragState.current;
-    if (!state) return;
-    dragState.current = null;
-    setInvalid(false);
-    onActiveChange(null);
-    onPreviewChange(null);
-    try {
-      if (state.element.hasPointerCapture(state.pointerId)) {
-        state.element.releasePointerCapture(state.pointerId);
+  const endDrag = useCallback(
+    (commitLayout: boolean) => {
+      const state = dragState.current;
+      if (!state) return;
+
+      if (commitLayout && autoLayout && pendingLayout.current) {
+        onUpdateLayout(pendingLayout.current);
       }
-    } catch {
-      // no-op: element may not have pointer capture anymore
-    }
-  }, [onActiveChange, onPreviewChange]);
+
+      pendingLayout.current = null;
+      dragState.current = null;
+      setInvalid(false);
+      onActiveChange(null);
+      onPreviewChange(null);
+      try {
+        if (state.element.hasPointerCapture(state.pointerId)) {
+          state.element.releasePointerCapture(state.pointerId);
+        }
+      } catch {
+        // no-op: element may not have pointer capture anymore
+      }
+    },
+    [autoLayout, onActiveChange, onPreviewChange, onUpdateLayout],
+  );
 
   useEffect(() => {
-    const handleWindowPointerUp = () => endDrag();
-    const handleWindowBlur = () => endDrag();
+    const handleWindowPointerUp = () => endDrag(true);
+    const handleWindowBlur = () => endDrag(true);
     window.addEventListener("pointerup", handleWindowPointerUp);
     window.addEventListener("pointercancel", handleWindowPointerUp);
     window.addEventListener("blur", handleWindowBlur);
@@ -99,6 +111,7 @@ export function ModuleTile({
       layout: instance.layout,
       element: event.currentTarget,
     };
+    pendingLayout.current = null;
     onActiveChange(instance.id);
     event.currentTarget.setPointerCapture(event.pointerId);
   };
@@ -161,14 +174,23 @@ export function ModuleTile({
     if (autoCanvasHeight && requestedRows >= metrics.rows) {
       onRequireRows(requestedRows + 1);
     }
+
+    if (autoLayout && state.mode === "resize") {
+      pendingLayout.current = candidate;
+    } else {
+      pendingLayout.current = null;
+    }
     onPreviewChange(candidate);
-    onUpdateLayout(candidate);
+
+    if (!autoLayout || state.mode !== "resize") {
+      onUpdateLayout(candidate);
+    }
   };
 
   const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
     if (!dragState.current) return;
     if (dragState.current.pointerId !== event.pointerId) return;
-    endDrag();
+    endDrag(true);
   };
 
   const { cellSize, padding, gap } = metrics;

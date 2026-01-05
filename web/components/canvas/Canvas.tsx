@@ -10,6 +10,7 @@ type CanvasProps = {
   metrics: GridMetrics;
   modules: ModuleInstance[];
   editMode: boolean;
+  autoLayout: boolean;
   activeDragId: string | null;
   previewLayout: Layout | null;
   autoCanvasHeight: boolean;
@@ -24,6 +25,7 @@ export function Canvas({
   metrics,
   modules,
   editMode,
+  autoLayout,
   activeDragId,
   previewLayout,
   autoCanvasHeight,
@@ -87,6 +89,7 @@ export function Canvas({
               definition={definition}
               index={index}
               metrics={metrics}
+              autoLayout={autoLayout}
               editMode={editMode}
               active={activeDragId === module.id}
               autoCanvasHeight={autoCanvasHeight}
