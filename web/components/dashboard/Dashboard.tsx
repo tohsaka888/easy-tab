@@ -28,6 +28,7 @@ export function Dashboard() {
     activeDragId,
     modules,
     canvasRows,
+    autoCanvasHeight,
     autoLayout,
     toggleEditMode,
     setDrawerOpen,
@@ -37,16 +38,29 @@ export function Dashboard() {
     setCanvasRows,
     setModules,
     toggleAutoLayout,
+    toggleAutoCanvasHeight,
   } = useDashboardStore();
   const [previewLayout, setPreviewLayout] = useState<Layout | null>(null);
+  const effectivePreviewLayout = editMode ? previewLayout : null;
 
   const maxBottom = modules.reduce((max, module) => Math.max(max, module.layout.y + module.layout.h), 0);
-  const rowsHint = Math.max(canvasRows, maxBottom + 1);
+  const rowsHintBase = Math.max(canvasRows, maxBottom + 1);
+  const rowsHint = autoCanvasHeight ? rowsHintBase : Math.max(rowsHintBase, 6);
   const { ref: canvasRef, metrics } = useGridMetrics({ rowsHint });
+
+  useEffect(() => {
+    if (!autoCanvasHeight) return;
+    const desiredRows = Math.max(6, maxBottom + 1);
+    if (desiredRows > canvasRows) {
+      setCanvasRows(desiredRows);
+    }
+  }, [autoCanvasHeight, canvasRows, maxBottom, setCanvasRows]);
 
   const moduleDefinitions = useMemo(() => getModuleDefinitions(), []);
   const modulesRef = useRef(modules);
-  modulesRef.current = modules;
+  useEffect(() => {
+    modulesRef.current = modules;
+  }, [modules]);
   const moduleKey = useMemo(() => modules.map((module) => module.id).join("|"), [modules]);
 
   useLayoutEffect(() => {
@@ -73,12 +87,6 @@ export function Dashboard() {
 
     if (changed) setModules(next);
   }, [autoLayout, metrics.cols, metrics.rows, moduleKey, setModules]);
-
-  useEffect(() => {
-    if (!editMode) {
-      setPreviewLayout(null);
-    }
-  }, [editMode]);
 
   const handleAddModule = (definition: ModuleDefinition) => {
     const bounds = { cols: metrics.cols, rows: metrics.rows };
@@ -131,7 +139,16 @@ export function Dashboard() {
   };
 
   const handleRowsChange = (delta: number) => {
+    if (autoCanvasHeight) return;
     setCanvasRows(Math.max(6, canvasRows + delta));
+  };
+
+  const handleRequireRows = (rows: number) => {
+    if (!autoCanvasHeight) return;
+    const nextRows = Math.max(6, Math.ceil(rows));
+    if (nextRows > canvasRows) {
+      setCanvasRows(nextRows);
+    }
   };
 
   return (
@@ -156,6 +173,13 @@ export function Dashboard() {
               </button>
               <button
                 type="button"
+                className="rounded-full border border-white/40 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-white/90 transition hover:bg-white/20"
+                onClick={toggleAutoCanvasHeight}
+              >
+                Auto Height {autoCanvasHeight ? "On" : "Off"}
+              </button>
+              <button
+                type="button"
                 className="rounded-full border border-white/50 bg-white/20 px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-white transition hover:bg-white/30"
                 onClick={toggleEditMode}
               >
@@ -166,6 +190,7 @@ export function Dashboard() {
                   type="button"
                   className="h-5 w-5 rounded-full bg-white/15 text-white hover:bg-white/25"
                   onClick={() => handleRowsChange(-1)}
+                  disabled={autoCanvasHeight}
                 >
                   -
                 </button>
@@ -174,6 +199,7 @@ export function Dashboard() {
                   type="button"
                   className="h-5 w-5 rounded-full bg-white/15 text-white hover:bg-white/25"
                   onClick={() => handleRowsChange(1)}
+                  disabled={autoCanvasHeight}
                 >
                   +
                 </button>
@@ -193,7 +219,9 @@ export function Dashboard() {
             modules={modules}
             editMode={editMode}
             activeDragId={activeDragId}
-            previewLayout={previewLayout}
+            previewLayout={effectivePreviewLayout}
+            autoCanvasHeight={autoCanvasHeight}
+            onRequireRows={handleRequireRows}
             onUpdateLayout={handleUpdateLayout}
             onDelete={removeModule}
             onActiveChange={setActiveDragId}

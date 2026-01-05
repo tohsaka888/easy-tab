@@ -10,6 +10,7 @@ type DashboardState = {
   drawerOpen: boolean;
   activeDragId: string | null;
   canvasRows: number;
+  autoCanvasHeight: boolean;
   autoLayout: boolean;
   modules: ModuleInstance[];
   setEditMode: (value: boolean) => void;
@@ -17,6 +18,8 @@ type DashboardState = {
   setDrawerOpen: (value: boolean) => void;
   setActiveDragId: (value: string | null) => void;
   setCanvasRows: (value: number) => void;
+  setAutoCanvasHeight: (value: boolean) => void;
+  toggleAutoCanvasHeight: () => void;
   setAutoLayout: (value: boolean) => void;
   toggleAutoLayout: () => void;
   addModule: (module: ModuleInstance) => void;
@@ -32,6 +35,7 @@ export const useDashboardStore = create<DashboardState>()(
       drawerOpen: false,
       activeDragId: null,
       canvasRows: 10,
+      autoCanvasHeight: true,
       autoLayout: true,
       modules: initialModules,
       setEditMode: (value) => set({ editMode: value }),
@@ -39,6 +43,8 @@ export const useDashboardStore = create<DashboardState>()(
       setDrawerOpen: (value) => set({ drawerOpen: value }),
       setActiveDragId: (value) => set({ activeDragId: value }),
       setCanvasRows: (value) => set({ canvasRows: value }),
+      setAutoCanvasHeight: (value) => set({ autoCanvasHeight: value }),
+      toggleAutoCanvasHeight: () => set((state) => ({ autoCanvasHeight: !state.autoCanvasHeight })),
       setAutoLayout: (value) => set({ autoLayout: value }),
       toggleAutoLayout: () => set((state) => ({ autoLayout: !state.autoLayout })),
       addModule: (module) => set((state) => ({ modules: [...state.modules, module] })),
@@ -59,6 +65,7 @@ export const useDashboardStore = create<DashboardState>()(
       partialize: (state) => ({
         modules: state.modules,
         canvasRows: state.canvasRows,
+        autoCanvasHeight: state.autoCanvasHeight,
         autoLayout: state.autoLayout,
       }),
       version: 1,

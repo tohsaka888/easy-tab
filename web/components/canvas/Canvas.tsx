@@ -12,6 +12,8 @@ type CanvasProps = {
   editMode: boolean;
   activeDragId: string | null;
   previewLayout: Layout | null;
+  autoCanvasHeight: boolean;
+  onRequireRows: (rows: number) => void;
   onUpdateLayout: (id: string, layout: Layout) => void;
   onDelete: (id: string) => void;
   onActiveChange: (id: string | null) => void;
@@ -24,6 +26,8 @@ export function Canvas({
   editMode,
   activeDragId,
   previewLayout,
+  autoCanvasHeight,
+  onRequireRows,
   onUpdateLayout,
   onDelete,
   onActiveChange,
@@ -85,6 +89,8 @@ export function Canvas({
               metrics={metrics}
               editMode={editMode}
               active={activeDragId === module.id}
+              autoCanvasHeight={autoCanvasHeight}
+              onRequireRows={onRequireRows}
               onUpdateLayout={(layout) => onUpdateLayout(module.id, layout)}
               onDelete={() => onDelete(module.id)}
               onActiveChange={onActiveChange}

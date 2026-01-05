@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 
 import type { Layout, ModuleDefinition, ModuleInstance } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,8 @@ type ModuleTileProps = {
   metrics: GridMetrics;
   editMode: boolean;
   active: boolean;
+  autoCanvasHeight: boolean;
+  onRequireRows: (rows: number) => void;
   onUpdateLayout: (layout: Layout) => void;
   onDelete: () => void;
   onActiveChange: (id: string | null) => void;
@@ -39,6 +41,8 @@ export function ModuleTile({
   metrics,
   editMode,
   active,
+  autoCanvasHeight,
+  onRequireRows,
   onUpdateLayout,
   onDelete,
   onActiveChange,
@@ -47,7 +51,7 @@ export function ModuleTile({
   const [invalid, setInvalid] = useState(false);
   const dragState = useRef<DragState | null>(null);
 
-  const endDrag = () => {
+  const endDrag = useCallback(() => {
     const state = dragState.current;
     if (!state) return;
     dragState.current = null;
@@ -61,7 +65,7 @@ export function ModuleTile({
     } catch {
       // no-op: element may not have pointer capture anymore
     }
-  };
+  }, [onActiveChange, onPreviewChange]);
 
   useEffect(() => {
     const handleWindowPointerUp = () => endDrag();
@@ -74,7 +78,7 @@ export function ModuleTile({
       window.removeEventListener("pointercancel", handleWindowPointerUp);
       window.removeEventListener("blur", handleWindowBlur);
     };
-  }, []);
+  }, [endDrag]);
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (!editMode) return;
@@ -132,7 +136,7 @@ export function ModuleTile({
     }
 
     const maxW = Math.min(definition.maxW, metrics.cols);
-    const maxH = Math.min(definition.maxH, metrics.rows);
+    const maxH = autoCanvasHeight ? definition.maxH : Math.min(definition.maxH, metrics.rows);
     candidate = {
       ...candidate,
       w: Math.min(Math.max(candidate.w, definition.minW), maxW),
@@ -142,8 +146,7 @@ export function ModuleTile({
     const inBounds =
       candidate.x >= 0 &&
       candidate.y >= 0 &&
-      candidate.x + candidate.w <= metrics.cols &&
-      candidate.y + candidate.h <= metrics.rows;
+      candidate.x + candidate.w <= metrics.cols;
 
     setInvalid(!inBounds);
     if (!inBounds) {
@@ -151,7 +154,13 @@ export function ModuleTile({
       return;
     }
 
-    candidate = clampLayout(candidate, { cols: metrics.cols, rows: metrics.rows });
+    const requestedRows = candidate.y + candidate.h;
+    const boundsRows = autoCanvasHeight ? Math.max(metrics.rows, requestedRows) : metrics.rows;
+    candidate = clampLayout(candidate, { cols: metrics.cols, rows: boundsRows });
+
+    if (autoCanvasHeight && requestedRows >= metrics.rows) {
+      onRequireRows(requestedRows + 1);
+    }
     onPreviewChange(candidate);
     onUpdateLayout(candidate);
   };
