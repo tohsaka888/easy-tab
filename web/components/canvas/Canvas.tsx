@@ -52,7 +52,7 @@ export function Canvas({
           style={{ margin: metrics.padding }}
         />
       )}
-      {editMode && previewLayout && (
+      {previewLayout && (
         <div
           className="pointer-events-none absolute inset-0 opacity-55"
           style={{

@@ -7,6 +7,7 @@ import { useGridMetrics } from "@/components/canvas/use-grid-metrics";
 import { ModuleDrawer } from "@/components/dashboard/ModuleDrawer";
 import { SearchBar } from "@/components/dashboard/SearchBar";
 import { TimeBlock } from "@/components/dashboard/TimeBlock";
+import { FiMinus, FiPlus } from "react-icons/fi";
 import {
   autoLayoutLayouts,
   autoLayoutWithAnchor,
@@ -166,7 +167,7 @@ export function Dashboard() {
                   className="h-5 w-5 rounded-full bg-white/15 text-white hover:bg-white/25"
                   onClick={() => handleRowsChange(-1)}
                 >
-                  -
+                  <FiMinus aria-hidden />
                 </button>
                 <span className="px-1">Rows {metrics.rows}</span>
                 <button
@@ -174,7 +175,7 @@ export function Dashboard() {
                   className="h-5 w-5 rounded-full bg-white/15 text-white hover:bg-white/25"
                   onClick={() => handleRowsChange(1)}
                 >
-                  +
+                  <FiPlus aria-hidden />
                 </button>
               </div>
             </div>
