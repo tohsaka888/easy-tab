@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
+import { FiMaximize2, FiX } from "react-icons/fi";
 
 import type { Layout, ModuleDefinition, ModuleInstance } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -47,6 +48,7 @@ export function ModuleTile({
   onPreviewChange,
 }: ModuleTileProps) {
   const [invalid, setInvalid] = useState(false);
+  const [activeMode, setActiveMode] = useState<DragState["mode"] | null>(null);
   const dragState = useRef<DragState | null>(null);
   const pendingLayout = useRef<Layout | null>(null);
 
@@ -61,6 +63,7 @@ export function ModuleTile({
 
       pendingLayout.current = null;
       dragState.current = null;
+      setActiveMode(null);
       setInvalid(false);
       onActiveChange(null);
       onPreviewChange(null);
@@ -89,14 +92,15 @@ export function ModuleTile({
   }, [endDrag]);
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (!editMode) return;
     const target = event.target as HTMLElement;
+    const handleElement = target.closest<HTMLElement>("[data-resize-handle]");
+    const handle = (handleElement?.dataset.resizeHandle as ResizeHandle | undefined) ?? undefined;
+
+    if (!editMode && !handle) return;
     if (target.closest("button")) {
       return;
     }
     event.preventDefault();
-    const handleElement = target.closest<HTMLElement>("[data-resize-handle]");
-    const handle = (handleElement?.dataset.resizeHandle as ResizeHandle | undefined) ?? undefined;
     const mode = handle ? "resize" : "drag";
     dragState.current = {
       pointerId: event.pointerId,
@@ -107,6 +111,7 @@ export function ModuleTile({
       layout: instance.layout,
       element: event.currentTarget,
     };
+    setActiveMode(mode);
     pendingLayout.current = null;
     onActiveChange(instance.id);
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -195,7 +200,11 @@ export function ModuleTile({
     <div
       className={cn(
         "absolute select-none touch-none transition-[left,top,width,height,box-shadow] duration-150 ease-out",
-        editMode ? (active ? "cursor-grabbing" : "cursor-grab") : "cursor-default",
+        editMode || activeMode === "resize"
+          ? active
+            ? "cursor-grabbing"
+            : "cursor-grab"
+          : "cursor-default",
         editMode && "animate-[wiggle_0.38s_ease-in-out_infinite]",
         active && "z-20",
       )}
@@ -217,7 +226,7 @@ export function ModuleTile({
           {definition.render({ instance })}
         </div>
 
-        {editMode && (
+        {(editMode || activeMode === "resize") && (
           <>
             <button
               type="button"
@@ -225,7 +234,7 @@ export function ModuleTile({
               onClick={onDelete}
               aria-label="Remove module"
             >
-              x
+              <FiX aria-hidden />
             </button>
             {(["nw", "ne", "sw", "se"] as ResizeHandle[]).map((handle) => {
               const position =
@@ -248,12 +257,14 @@ export function ModuleTile({
                   <span
                     data-resize-handle={handle}
                     className={cn(
-                      "absolute inset-2 rounded-full border border-white/70 bg-[color:var(--accent-2)] opacity-0 shadow-[0_0_10px_rgba(59,166,166,0.0)]",
+                      "absolute inset-2 flex items-center justify-center rounded-full border border-white/70 bg-[color:var(--accent-2)]/80 text-white opacity-0 shadow-[0_0_10px_rgba(59,166,166,0.0)]",
                       "transition-all duration-150 ease-out",
                       "group-hover/handle:opacity-100 group-hover/handle:shadow-[0_0_12px_rgba(59,166,166,0.7)] group-hover/handle:scale-110",
                       "group-hover/handle:animate-[pulse_0.4s_ease-in-out_forwards]",
                     )}
-                  />
+                  >
+                    <FiMaximize2 aria-hidden className="pointer-events-none text-base" />
+                  </span>
                 </div>
               );
             })}
