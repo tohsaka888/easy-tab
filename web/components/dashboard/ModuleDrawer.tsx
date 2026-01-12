@@ -23,7 +23,7 @@ export function ModuleDrawer({ open, modules, onClose, onAdd }: ModuleDrawerProp
       />
       <aside
         className={cn(
-          "fixed right-0 top-0 z-40 h-full w-[320px] translate-x-full bg-white/90 p-6 shadow-2xl transition-transform",
+          "fixed right-0 top-0 z-40 h-full w-[320px] translate-x-full bg-[color:var(--surface-2)] p-6 shadow-2xl transition-transform",
           open && "translate-x-0",
         )}
       >
@@ -41,7 +41,7 @@ export function ModuleDrawer({ open, modules, onClose, onAdd }: ModuleDrawerProp
           {modules.map((module) => (
             <div
               key={module.type}
-              className="rounded-2xl border border-black/5 bg-white/80 p-4 shadow-[0_12px_26px_rgba(0,0,0,0.12)]"
+              className="rounded-2xl border border-[color:var(--stroke-soft)] bg-[color:var(--surface-2)] p-4 shadow-[0_12px_26px_rgba(0,0,0,0.12)]"
             >
               <div className="flex items-center justify-between">
                 <div>

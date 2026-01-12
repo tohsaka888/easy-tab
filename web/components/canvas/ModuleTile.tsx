@@ -217,13 +217,13 @@ export function ModuleTile({
       <div
         className={cn(
           "relative h-full w-full rounded-[14px] transition",
-          editMode ? "ring-1 ring-white/70" : "ring-0",
+          editMode ? "ring-1 ring-[color:var(--stroke-strong)]" : "ring-0",
           invalid && "ring-2 ring-[color:var(--danger)]",
           active && "shadow-[0_14px_36px_rgba(0,0,0,0.22)]",
         )}
       >
-        <div className="tile-enter h-full w-full" style={{ animationDelay: `${index * 60}ms` }}>
-          {definition.render({ instance })}
+                      "absolute inset-2 flex items-center justify-center rounded-full border border-[color:var(--stroke-strong)] bg-[color:var(--accent-2)]/80 text-white opacity-0 shadow-[0_0_10px_rgba(var(--accent-2-rgb)/0.0)]",
+                      "group-hover/handle:opacity-100 group-hover/handle:shadow-[0_0_12px_rgba(var(--accent-2-rgb)/0.7)] group-hover/handle:scale-110",
         </div>
 
         {(editMode || activeMode === "resize") && (

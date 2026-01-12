@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 
 import { Canvas } from "@/components/canvas/Canvas";
 import { useGridMetrics } from "@/components/canvas/use-grid-metrics";
@@ -19,6 +19,7 @@ import {
 import type { Layout, ModuleDefinition, ModuleInstance } from "@/lib/types";
 import { getModuleDefinitions } from "@/modules/registry";
 import { useDashboardStore } from "@/stores/useDashboardStore";
+import { applyThemeToRoot, extractThemeFromImage } from "@/lib/theme";
 
 const gridHint = "Drag tiles to reorder. Resize with the corner handles.";
 
@@ -30,6 +31,8 @@ export function Dashboard() {
     modules,
     canvasRows,
     autoLayout,
+    backgroundImage,
+    themeColors,
     toggleEditMode,
     setDrawerOpen,
     addModule,
@@ -38,8 +41,12 @@ export function Dashboard() {
     setCanvasRows,
     setModules,
     toggleAutoLayout,
+    setBackgroundImage,
+    setThemeColors,
+    resetTheme,
   } = useDashboardStore();
   const [previewLayout, setPreviewLayout] = useState<Layout | null>(null);
+  const uploadRef = useRef<HTMLInputElement>(null);
 
   const maxBottom = modules.reduce((max, module) => Math.max(max, module.layout.y + module.layout.h), 0);
   const rowsHint = Math.max(canvasRows, maxBottom + 1);
@@ -76,6 +83,10 @@ export function Dashboard() {
 
     if (changed) setModules(next);
   }, [autoLayout, metrics.cols, metrics.rows, moduleKey, setModules]);
+
+  useEffect(() => {
+    applyThemeToRoot(themeColors, backgroundImage);
+  }, [backgroundImage, themeColors]);
 
   const handleAddModule = (definition: ModuleDefinition) => {
     const bounds = { cols: metrics.cols, rows: metrics.rows };
@@ -131,6 +142,25 @@ export function Dashboard() {
     setCanvasRows(Math.max(6, canvasRows + delta));
   };
 
+  const handleUploadClick = () => {
+    uploadRef.current?.click();
+  };
+
+  const handleUploadChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result?.toString();
+      if (!dataUrl) return;
+      setBackgroundImage(dataUrl);
+      const theme = await extractThemeFromImage(dataUrl);
+      setThemeColors(theme);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = "";
+  };
+
   return (
     <div className="app-shell relative overflow-hidden">
       <div className="relative z-10 px-4 pb-20">
@@ -139,21 +169,21 @@ export function Dashboard() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                className="rounded-full border border-white/40 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-white/90 transition hover:bg-white/20"
+                className="rounded-full border border-[color:var(--stroke)] bg-[color:var(--overlay)] px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-[color:var(--card-ink)] transition hover:bg-[color:var(--overlay-strong)]"
                 onClick={() => setDrawerOpen(true)}
               >
                 Add
               </button>
               <button
                 type="button"
-                className="rounded-full border border-white/40 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-white/90 transition hover:bg-white/20"
+                className="rounded-full border border-[color:var(--stroke)] bg-[color:var(--overlay)] px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-[color:var(--card-ink)] transition hover:bg-[color:var(--overlay-strong)]"
                 onClick={toggleAutoLayout}
               >
                 Auto {autoLayout ? "On" : "Off"}
               </button>
               <button
                 type="button"
-                className="rounded-full border border-white/50 bg-white/20 px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-white transition hover:bg-white/30"
+                className="rounded-full border border-[color:var(--stroke-strong)] bg-[color:var(--overlay-strong)] px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-[color:var(--card-ink)] transition hover:bg-[color:var(--overlay)]"
                 onClick={() => {
                   if (editMode) setPreviewLayout(null);
                   toggleEditMode();
@@ -161,10 +191,24 @@ export function Dashboard() {
               >
                 {editMode ? "Done" : "Edit"}
               </button>
-              <div className="flex items-center gap-1 rounded-full border border-white/30 bg-white/10 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-white/80">
+              <button
+                type="button"
+                className="rounded-full border border-[color:var(--stroke)] bg-[color:var(--overlay)] px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-[color:var(--card-ink)] transition hover:bg-[color:var(--overlay-strong)]"
+                onClick={handleUploadClick}
+              >
+                Upload
+              </button>
+              <button
+                type="button"
+                className="rounded-full border border-[color:var(--stroke)] bg-[color:var(--overlay)] px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-[color:var(--card-ink)] transition hover:bg-[color:var(--overlay-strong)]"
+                onClick={resetTheme}
+              >
+                Reset
+              </button>
+              <div className="flex items-center gap-1 rounded-full border border-[color:var(--stroke-soft)] bg-[color:var(--overlay)] px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-[color:var(--card-ink-muted)]">
                 <button
                   type="button"
-                  className="h-5 w-5 rounded-full bg-white/15 text-white hover:bg-white/25"
+                  className="h-5 w-5 rounded-full bg-[color:var(--overlay)] text-[color:var(--card-ink)] hover:bg-[color:var(--overlay-strong)]"
                   onClick={() => handleRowsChange(-1)}
                 >
                   <FiMinus aria-hidden />
@@ -172,7 +216,7 @@ export function Dashboard() {
                 <span className="px-1">Rows {metrics.rows}</span>
                 <button
                   type="button"
-                  className="h-5 w-5 rounded-full bg-white/15 text-white hover:bg-white/25"
+                  className="h-5 w-5 rounded-full bg-[color:var(--overlay)] text-[color:var(--card-ink)] hover:bg-[color:var(--overlay-strong)]"
                   onClick={() => handleRowsChange(1)}
                 >
                   <FiPlus aria-hidden />
@@ -180,9 +224,16 @@ export function Dashboard() {
               </div>
             </div>
           </div>
+          <input
+            ref={uploadRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleUploadChange}
+          />
           <TimeBlock />
           <SearchBar />
-          <div className="font-ui text-[11px] uppercase tracking-[0.3em] text-white/60">
+          <div className="font-ui text-[11px] uppercase tracking-[0.3em] text-[color:var(--card-ink-muted)]">
             Canvas Mode - {metrics.cols} cols / {metrics.rows} rows
           </div>
         </header>
@@ -202,7 +253,7 @@ export function Dashboard() {
           />
         </div>
 
-        <footer className="mx-auto mt-6 max-w-[1200px] text-center font-ui text-xs text-white/70">
+        <footer className="mx-auto mt-6 max-w-[1200px] text-center font-ui text-xs text-[color:var(--card-ink-muted)]">
           {editMode ? gridHint : "Tap edit to rearrange your canvas."}
         </footer>
       </div>
