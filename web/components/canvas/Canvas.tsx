@@ -43,7 +43,7 @@ export function Canvas({
       }}
     >
       <div
-        className="pointer-events-none absolute inset-0 rounded-[32px] border border-white/10 bg-white/5 opacity-60 backdrop-blur-[2px]"
+        className="pointer-events-none absolute inset-0 rounded-[32px] border border-[color:var(--stroke-soft)] bg-[color:var(--overlay-soft)] opacity-60 backdrop-blur-[2px]"
         style={{ margin: metrics.padding / 2 }}
       />
       {editMode && (
@@ -58,7 +58,7 @@ export function Canvas({
           style={{
             margin: metrics.padding,
             backgroundImage:
-              "linear-gradient(rgba(59,166,166,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(59,166,166,0.35) 1px, transparent 1px)",
+              "linear-gradient(rgba(var(--accent-2-rgb)/0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--accent-2-rgb)/0.35) 1px, transparent 1px)",
             backgroundSize: `${metrics.cellSize}px ${metrics.cellSize}px`,
           }}
         />

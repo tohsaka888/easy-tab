@@ -2,11 +2,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LinkIcon } from "@/components/icons";
 import type { ModuleRenderProps } from "@/lib/types";
 
-const shortcuts = [
-  { name: "Figma", color: "bg-[#F24E1E]/15 text-[#F24E1E]" },
-  { name: "Notion", color: "bg-black/10 text-black" },
-  { name: "GitHub", color: "bg-[#111827]/15 text-[#111827]" },
-  { name: "Slack", color: "bg-[#4A154B]/15 text-[#4A154B]" },
+      <CardHeader className="border-b border-[color:var(--card-border)] px-4 pt-4 pb-3">
+        <CardTitle className="flex items-center gap-2 text-base text-[color:var(--card-ink)]">
+                className="group/item flex flex-col gap-2 rounded-xl border border-[color:var(--card-border)] bg-[color:var(--overlay-soft)] px-3 py-3 text-[color:var(--card-ink-muted)] transition hover:-translate-y-0.5 hover:border-[color:var(--accent-2)]/50 hover:bg-[color:var(--accent-2)]/10"
+                  className={`relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br ${item.color} text-[11px] font-semibold text-white shadow-[0_12px_30px_rgba(0,0,0,0.35)] ring-1 ring-[color:var(--stroke-soft)]`}
+                <span className="text-[12px] font-medium tracking-wide text-[color:var(--card-ink)]">
+                  {item.name}
+                </span>
   { name: "Drive", color: "bg-[#34A853]/15 text-[#34A853]" },
   { name: "Calendar", color: "bg-[#4285F4]/15 text-[#4285F4]" },
   { name: "Linear", color: "bg-[#5E6AD2]/15 text-[#5E6AD2]" },

@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NoteIcon } from "@/components/icons";
-import type { ModuleRenderProps } from "@/lib/types";
-
-const notes = [
+      <CardHeader className="border-b border-[color:var(--card-border)] px-4 pt-4 pb-3">
+        <CardTitle className="flex items-center gap-2 text-base text-[color:var(--card-ink)]">
+              className="rounded-lg border border-[color:var(--card-border)] bg-[color:var(--overlay-soft)] px-3 py-2 text-[color:var(--card-ink)] shadow-[0_12px_30px_rgba(0,0,0,0.2)]"
   "Refine grid snapping logic",
   "Prepare demo tiles",
   "Email design tokens to team",

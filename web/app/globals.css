@@ -11,9 +11,23 @@
   --ink-2: #24413e;
   --accent-1: #f8b547;
   --accent-2: #3ba6a6;
+  --accent-1-rgb: 248 181 71;
+  --accent-2-rgb: 59 166 166;
+  --accent-ink: #1a1202;
   --danger: #e55353;
   --grid-line: rgba(255, 255, 255, 0.16);
   --grid-line-strong: rgba(255, 255, 255, 0.22);
+  --stroke-strong: rgba(255, 255, 255, 0.5);
+  --stroke: rgba(255, 255, 255, 0.32);
+  --stroke-soft: rgba(255, 255, 255, 0.16);
+  --overlay-strong: rgba(255, 255, 255, 0.22);
+  --overlay: rgba(255, 255, 255, 0.12);
+  --overlay-soft: rgba(255, 255, 255, 0.06);
+  --card-surface: rgba(12, 18, 34, 0.78);
+  --card-border: rgba(255, 255, 255, 0.12);
+  --card-ink: rgba(248, 250, 252, 0.96);
+  --card-ink-muted: rgba(226, 232, 240, 0.75);
+  --bg-image: none;
 }
 
 @theme inline {
@@ -30,8 +44,10 @@ body {
 body {
   color: var(--ink-1);
   font-family: var(--font-body), "PingFang SC", "Hiragino Sans GB", sans-serif;
-  background: radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.15), transparent 55%),
-    radial-gradient(circle at 85% 15%, rgba(43, 255, 240, 0.12), transparent 45%),
+  background: radial-gradient(circle at 20% 10%, var(--overlay-soft), transparent 55%),
+    radial-gradient(circle at 85% 15%, var(--overlay-soft), transparent 45%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.32), rgba(0, 0, 0, 0.48)),
+    var(--bg-image) center / cover no-repeat fixed,
     linear-gradient(160deg, var(--bg-1), var(--bg-2) 60%, var(--bg-3));
   overflow-x: hidden;
 }
@@ -44,7 +60,7 @@ body {
 
 .app-shell::before {
   content: "";
-  position: absolute;
+  background-image: radial-gradient(var(--overlay-soft) 1px, transparent 0);
   inset: 0;
   background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
   background-size: 3px 3px;
@@ -99,10 +115,10 @@ body {
 @keyframes pulseGlow {
   0%,
   100% {
-    box-shadow: 0 0 0 rgba(59, 166, 166, 0);
+    box-shadow: 0 0 0 rgba(var(--accent-2-rgb) / 0);
   }
   50% {
-    box-shadow: 0 0 16px rgba(59, 166, 166, 0.4);
+    box-shadow: 0 0 16px rgba(var(--accent-2-rgb) / 0.4);
   }
 }
 

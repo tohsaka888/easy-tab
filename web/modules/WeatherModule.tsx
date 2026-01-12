@@ -7,13 +7,17 @@ export function WeatherModule({ instance }: ModuleRenderProps) {
   const city = (instance.config?.city as string) ?? "Shanghai";
   return (
     <Card className="h-full">
-      <CardHeader className="px-4 pt-4">
-        <CardTitle className="flex items-center gap-2">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[color:var(--accent-2)]/15 text-[color:var(--accent-2)]">
-            <SunIcon className="h-4 w-4" />
-          </span>
-          Weather
-        </CardTitle>
+      <CardHeader className="border-b border-[color:var(--card-border)] px-4 pt-4 pb-3">
+        <CardTitle className="flex items-center gap-2 text-base text-[color:var(--card-ink)]">
+        <Badge
+          className="border border-[color:var(--card-border)] bg-[color:var(--overlay-soft)] text-[color:var(--card-ink)] shadow-sm"
+        >
+          {city}
+        </Badge>
+        <div className="flex items-end justify-between rounded-xl border border-[color:var(--card-border)] bg-[color:var(--overlay-soft)] px-4 py-3 shadow-[0_14px_38px_rgba(0,0,0,0.25)]">
+            <p className="text-3xl font-semibold text-[color:var(--card-ink)]">26 deg</p>
+            <p className="text-xs text-[color:var(--card-ink-muted)]">Cloudy, humid</p>
+          <div className="text-right text-xs text-[color:var(--card-ink-muted)]">
         <Badge className="bg-[color:var(--surface-3)]">{city}</Badge>
       </CardHeader>
       <CardContent className="px-4 pb-4 pt-2">

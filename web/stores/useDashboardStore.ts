@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import type { Layout, ModuleInstance } from "@/lib/types";
+import { defaultThemeColors, type ThemeColors } from "@/lib/theme";
 import { createIndexedDBStorage } from "@/lib/indexeddb-storage";
 import { initialModules } from "@/mocks/initial-modules";
 
@@ -12,6 +13,8 @@ type DashboardState = {
   canvasRows: number;
   autoLayout: boolean;
   modules: ModuleInstance[];
+  backgroundImage: string | null;
+  themeColors: ThemeColors;
   setEditMode: (value: boolean) => void;
   toggleEditMode: () => void;
   setDrawerOpen: (value: boolean) => void;
@@ -23,6 +26,9 @@ type DashboardState = {
   removeModule: (id: string) => void;
   updateModuleLayout: (id: string, layout: Layout) => void;
   setModules: (modules: ModuleInstance[]) => void;
+  setBackgroundImage: (image: string | null) => void;
+  setThemeColors: (colors: ThemeColors) => void;
+  resetTheme: () => void;
 };
 
 export const useDashboardStore = create<DashboardState>()(
@@ -34,6 +40,8 @@ export const useDashboardStore = create<DashboardState>()(
       canvasRows: 10,
       autoLayout: true,
       modules: initialModules,
+      backgroundImage: null,
+      themeColors: defaultThemeColors,
       setEditMode: (value) => set({ editMode: value }),
       toggleEditMode: () => set((state) => ({ editMode: !state.editMode })),
       setDrawerOpen: (value) => set({ drawerOpen: value }),
@@ -49,6 +57,9 @@ export const useDashboardStore = create<DashboardState>()(
           modules: state.modules.map((item) => (item.id === id ? { ...item, layout } : item)),
         })),
       setModules: (modules) => set({ modules }),
+      setBackgroundImage: (image) => set({ backgroundImage: image }),
+      setThemeColors: (colors) => set({ themeColors: colors }),
+      resetTheme: () => set({ backgroundImage: null, themeColors: defaultThemeColors }),
     }),
     {
       name: "dashboard-store",
@@ -60,6 +71,8 @@ export const useDashboardStore = create<DashboardState>()(
         modules: state.modules,
         canvasRows: state.canvasRows,
         autoLayout: state.autoLayout,
+        backgroundImage: state.backgroundImage,
+        themeColors: state.themeColors,
       }),
       version: 1,
     },
